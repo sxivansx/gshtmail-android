@@ -1,0 +1,232 @@
+package com.pvot.ghstmail.autofill
+
+import android.app.PendingIntent
+import android.app.assist.AssistStructure
+import android.content.Intent
+import android.os.CancellationSignal
+import android.service.autofill.*
+import android.text.InputType
+import android.util.Log
+import android.view.autofill.AutofillId
+import android.view.autofill.AutofillValue
+import android.widget.RemoteViews
+import com.pvot.ghstmail.R
+import com.pvot.ghstmail.auth.AuthManager
+
+class GhstMailAutofillService : AutofillService() {
+
+    companion object {
+        private const val TAG = "GhstMailAutofill"
+    }
+
+    override fun onFillRequest(
+        request: FillRequest,
+        cancellationSignal: CancellationSignal,
+        callback: FillCallback
+    ) {
+        Log.d(TAG, "onFillRequest called")
+
+        val auth = AuthManager(applicationContext)
+        if (!auth.isLoggedIn) {
+            Log.d(TAG, "Not logged in, skipping")
+            callback.onSuccess(null)
+            return
+        }
+
+        val structure = request.fillContexts.lastOrNull()?.structure
+        if (structure == null) {
+            Log.d(TAG, "No structure, skipping")
+            callback.onSuccess(null)
+            return
+        }
+
+        val emailFields = mutableListOf<AutofillId>()
+
+        for (i in 0 until structure.windowNodeCount) {
+            val windowNode = structure.getWindowNodeAt(i)
+            Log.d(TAG, "Window: ${windowNode.title}")
+            traverseNode(windowNode.rootViewNode, emailFields, depth = 0)
+        }
+
+        Log.d(TAG, "Found ${emailFields.size} email fields")
+
+        if (emailFields.isEmpty()) {
+            callback.onSuccess(null)
+            return
+        }
+
+        // Create an intent to launch the alias generation activity
+        val generateIntent = Intent(applicationContext, GenerateAliasActivity::class.java).apply {
+            putExtra("autofill_ids", emailFields.toTypedArray())
+            // Extract a label from the window title
+            val title = structure.getWindowNodeAt(0).title?.toString() ?: ""
+            putExtra("app_label", extractLabel(title))
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            applicationContext,
+            1001,
+            generateIntent,
+            PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
+        )
+
+        // Show a static presentation — tapping it triggers the PendingIntent
+        val presentation = RemoteViews(packageName, R.layout.autofill_suggestion).apply {
+            setTextViewText(R.id.autofill_title, "\uD83D\uDC7B Generate GhstMail Alias")
+            setTextViewText(R.id.autofill_subtitle, "Tap to create a disposable email")
+        }
+
+        try {
+            val intentSender = pendingIntent.intentSender
+
+            val datasetBuilder = Dataset.Builder()
+            for (fieldId in emailFields) {
+                datasetBuilder.setValue(
+                    fieldId,
+                    AutofillValue.forText("placeholder"),
+                    presentation
+                )
+            }
+            datasetBuilder.setAuthentication(intentSender)
+
+            val response = FillResponse.Builder()
+                .addDataset(datasetBuilder.build())
+                .build()
+
+            Log.d(TAG, "Returning fill response with ${emailFields.size} fields")
+            callback.onSuccess(response)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error building response", e)
+            callback.onFailure("Error: ${e.message}")
+        }
+    }
+
+    override fun onSaveRequest(request: SaveRequest, callback: SaveCallback) {
+        callback.onSuccess()
+    }
+
+    private fun traverseNode(
+        node: AssistStructure.ViewNode,
+        emailFields: MutableList<AutofillId>,
+        depth: Int
+    ) {
+        val indent = "  ".repeat(depth)
+        val className = node.className ?: ""
+        val hint = node.hint ?: ""
+        val idEntry = node.idEntry ?: ""
+        val htmlTag = node.htmlInfo?.tag ?: ""
+        val inputType = node.inputType
+        val autofillHints = node.autofillHints?.joinToString(",") ?: ""
+        val autofillType = node.autofillType
+
+        // Log every interactive node for debugging
+        if (autofillType != 0 || htmlTag.isNotEmpty()) {
+            Log.v(
+                TAG,
+                "${indent}Node: class=$className hint=$hint id=$idEntry " +
+                    "html=$htmlTag inputType=$inputType " +
+                    "autofillHints=[$autofillHints] autofillType=$autofillType"
+            )
+        }
+
+        if (isEmailField(node)) {
+            node.autofillId?.let {
+                Log.d(TAG, "${indent}>> EMAIL FIELD FOUND: id=$idEntry hint=$hint html=$htmlTag")
+                emailFields.add(it)
+            }
+        }
+
+        for (i in 0 until node.childCount) {
+            traverseNode(node.getChildAt(i), emailFields, depth + 1)
+        }
+    }
+
+    private fun isEmailField(node: AssistStructure.ViewNode): Boolean {
+        // Must be a fillable text field
+        if (node.autofillType != android.view.View.AUTOFILL_TYPE_TEXT) return false
+
+        // 1. Check autofill hints
+        val hints = node.autofillHints
+        if (hints != null) {
+            for (hint in hints) {
+                val h = hint.lowercase()
+                if (h.contains("email") || h == "username" || h == "emailaddress") {
+                    return true
+                }
+            }
+        }
+
+        // 2. Check HTML info (for Chrome/WebView)
+        val htmlInfo = node.htmlInfo
+        if (htmlInfo != null) {
+            val tag = htmlInfo.tag?.lowercase() ?: ""
+            if (tag == "input") {
+                val attrs = htmlInfo.attributes
+                if (attrs != null) {
+                    var typeVal = ""
+                    var nameVal = ""
+                    var autocompleteVal = ""
+                    var placeholderVal = ""
+                    for (pair in attrs) {
+                        when (pair.first.lowercase()) {
+                            "type" -> typeVal = pair.second?.lowercase() ?: ""
+                            "name" -> nameVal = pair.second?.lowercase() ?: ""
+                            "autocomplete" -> autocompleteVal = pair.second?.lowercase() ?: ""
+                            "placeholder" -> placeholderVal = pair.second?.lowercase() ?: ""
+                            "id" -> {
+                                val idVal = pair.second?.lowercase() ?: ""
+                                if (idVal.contains("email")) return true
+                            }
+                        }
+                    }
+                    if (typeVal == "email") return true
+                    if (autocompleteVal.contains("email")) return true
+                    if (nameVal.contains("email")) return true
+                    if (placeholderVal.contains("email")) return true
+                }
+            }
+        }
+
+        // 3. Check Android inputType
+        val inputType = node.inputType
+        val variation = inputType and InputType.TYPE_MASK_VARIATION
+        if (variation == InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS ||
+            variation == InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS
+        ) {
+            return true
+        }
+
+        // 4. Check hint text
+        val hintText = node.hint?.lowercase() ?: ""
+        if (hintText.contains("email") || hintText.contains("e-mail") ||
+            hintText.contains("mail address")
+        ) {
+            return true
+        }
+
+        // 5. Check idEntry
+        val idEntry = node.idEntry?.lowercase() ?: ""
+        if (idEntry.contains("email")) return true
+
+        // 6. Check text (for labels in webview — risky but helps)
+        val text = node.text?.toString()?.lowercase() ?: ""
+        if (text.isEmpty()) {
+            // Empty text fields with "text" type on a login/signup page
+            // Check the resource id or web attributes for broader matches
+        }
+
+        return false
+    }
+
+    private fun extractLabel(windowTitle: String): String {
+        if (windowTitle.isBlank()) return ""
+        // Chrome titles are like "Sign Up - Netflix"
+        val parts = windowTitle.split(" - ", " | ", " — ")
+        val last = parts.lastOrNull()?.trim() ?: return windowTitle.take(20)
+        // Strip "Google Chrome" etc
+        if (last.lowercase().contains("chrome") || last.lowercase().contains("browser")) {
+            return parts.firstOrNull()?.trim()?.take(20) ?: ""
+        }
+        return last.take(20)
+    }
+}
