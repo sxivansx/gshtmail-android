@@ -8,6 +8,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,6 +17,12 @@ import androidx.compose.runtime.setValue
 import space.ghstmail.android.api.AliasInfo
 import space.ghstmail.android.api.AliasStatus
 import space.ghstmail.android.api.ApiException
+import space.ghstmail.android.api.FilterRule
+import space.ghstmail.android.ui.filters.FiltersActions
+import space.ghstmail.android.ui.filters.FiltersContent
+import space.ghstmail.android.ui.filters.FiltersUiState
+import space.ghstmail.android.ui.filters.looksLikeDomain
+import space.ghstmail.android.ui.filters.normalizeDomain
 import space.ghstmail.android.ui.home.HomeActions
 import space.ghstmail.android.ui.home.HomeContent
 import space.ghstmail.android.ui.home.HomeUiState
@@ -29,7 +36,7 @@ import java.time.Instant
 /**
  * Debug-only: the home screen on sample data, no account and no network.
  * adb shell am start -n space.ghstmail.android/.debug.PreviewActivity --es state list
- * States: list (default), empty, loading, error, create (sheet open).
+ * States: list (default), empty, loading, error, create (sheet open), filters, filters-empty.
  */
 class PreviewActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +49,10 @@ class PreviewActivity : ComponentActivity() {
         val animate = Settings.Global.getFloat(
             contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f
         ) != 0f
+        if (name.startsWith("filters")) {
+            setContent { GhstMailTheme { FiltersPreview(empty = name == "filters-empty") } }
+            return
+        }
         setContent {
             GhstMailTheme {
                 val scope = rememberCoroutineScope()
@@ -107,6 +118,38 @@ class PreviewActivity : ComponentActivity() {
             }
         }
     }
+
+    @Composable
+    private fun FiltersPreview(empty: Boolean) {
+        var state by remember {
+            mutableStateOf(FiltersUiState(loading = false, rules = if (empty) emptyList() else sampleRules()))
+        }
+        FiltersContent(
+            state = state,
+            actions = FiltersActions(
+                onBack = { finish() },
+                onDomainChange = { state = state.copy(domain = it, domainInvalid = false) },
+                onActionChange = { state = state.copy(action = it) },
+                onAdd = {
+                    val domain = normalizeDomain(state.domain)
+                    state = if (looksLikeDomain(domain)) {
+                        val rule = FilterRule("new-${state.rules.size}", domain, state.action.wireValue)
+                        state.copy(rules = listOf(rule) + state.rules, domain = "")
+                    } else {
+                        state.copy(domainInvalid = true)
+                    }
+                },
+                onRemove = { rule -> state = state.copy(rules = state.rules.filterNot { it.id == rule.id }) },
+            ),
+        )
+    }
+
+    private fun sampleRules() = listOf(
+        FilterRule("1", "spam.com", "block"),
+        FilterRule("2", "newsletters.parcelbird.example", "block"),
+        FilterRule("3", "stackforge.dev", "allow"),
+        FilterRule("4", "a-very-long-marketing-subdomain.promotions-and-offers.example.com", "block"),
+    )
 
     private fun sampleState(name: String, all: List<AliasInfo>): HomeUiState {
         val base = HomeUiState(loading = false, forwardsTo = "you@example.com", status = AliasStatus.All)
