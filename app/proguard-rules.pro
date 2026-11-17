@@ -19,3 +19,10 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# The autofill service logs the layout of whatever app it is asked to fill, and the alias it
+# made. Useful while debugging, not something a release build should write to the system log.
+-assumenosideeffects class android.util.Log {
+    public static int v(...);
+    public static int d(...);
+}
