@@ -31,11 +31,14 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -93,6 +96,39 @@ fun GhstTopBar(modifier: Modifier = Modifier, actions: @Composable RowScope.() -
             )
             Spacer(Modifier.weight(1f))
             actions()
+        }
+        HorizontalDivider(color = GhstColors.Border)
+    }
+}
+
+/** The bar of a screen opened from the home screen: back, then where you are. */
+@Composable
+fun GhstBackBar(title: String, onBack: () -> Unit, modifier: Modifier = Modifier) {
+    Column(modifier = modifier.background(GhstColors.Background)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+                )
+                .height(56.dp)
+                // The arrow's ink starts 16dp inside its button: this puts it on the 20dp gutter.
+                .padding(start = 4.dp, end = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                    contentDescription = stringResource(R.string.nav_back),
+                    tint = GhstColors.Text,
+                )
+            }
+            Spacer(Modifier.width(4.dp))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge,
+                color = GhstColors.Text,
+            )
         }
         HorizontalDivider(color = GhstColors.Border)
     }

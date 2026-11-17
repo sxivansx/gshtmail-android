@@ -107,6 +107,21 @@
     <string name="create_expires_7d">7 days</string>
     <string name="create_action">Create alias</string>
 
+    <string name="nav_back">Back</string>
+
+    <string name="filters_title">Filters</string>
+    <string name="filters_subtitle">Block or allow mail from a whole domain. A rule applies to every alias you have.</string>
+    <string name="filters_domain_label">Domain</string>
+    <string name="filters_domain_placeholder">e.g. spam.com</string>
+    <string name="filters_domain_invalid">Enter a domain, like spam.com.</string>
+    <string name="filters_action_label">Action</string>
+    <string name="filters_action_block">Block</string>
+    <string name="filters_action_allow">Allow</string>
+    <string name="filters_add">Add rule</string>
+    <string name="filters_empty_title">No rules yet</string>
+    <string name="filters_empty_body">Getting spam from one sender? Add its domain above and it stops reaching every alias.</string>
+    <string name="filters_delete_description">Delete the rule for %s</string>
+
     <string name="autofill_suggestion_title">New GhstMail alias</string>
     <string name="autofill_suggestion_subtitle">Fill a disposable email here</string>
     <string name="autofill_creating">Creating alias…</string>
