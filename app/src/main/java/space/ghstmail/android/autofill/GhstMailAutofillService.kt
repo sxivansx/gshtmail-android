@@ -1,4 +1,4 @@
-package com.pvot.ghstmail.autofill
+package space.ghstmail.android.autofill
 
 import android.app.PendingIntent
 import android.app.assist.AssistStructure
@@ -10,8 +10,8 @@ import android.util.Log
 import android.view.autofill.AutofillId
 import android.view.autofill.AutofillValue
 import android.widget.RemoteViews
-import com.pvot.ghstmail.R
-import com.pvot.ghstmail.auth.AuthManager
+import space.ghstmail.android.R
+import space.ghstmail.android.auth.AuthManager
 
 class GhstMailAutofillService : AutofillService() {
 

@@ -1,4 +1,4 @@
-package com.pvot.ghstmail.auth
+package space.ghstmail.android.auth
 
 import android.content.Context
 import androidx.security.crypto.EncryptedSharedPreferences

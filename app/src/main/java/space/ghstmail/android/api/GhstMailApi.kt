@@ -1,4 +1,4 @@
-package com.pvot.ghstmail.api
+package space.ghstmail.android.api
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json

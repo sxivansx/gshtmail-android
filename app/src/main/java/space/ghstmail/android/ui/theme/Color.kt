@@ -1,4 +1,4 @@
-package com.pvot.ghstmail.ui.theme
+package space.ghstmail.android.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

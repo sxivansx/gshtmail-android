@@ -1,4 +1,4 @@
-package com.pvot.ghstmail
+package space.ghstmail.android
 
 import org.junit.Test
 

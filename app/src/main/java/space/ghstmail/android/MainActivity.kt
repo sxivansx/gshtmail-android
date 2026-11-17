@@ -1,4 +1,4 @@
-package com.pvot.ghstmail
+package space.ghstmail.android
 
 import android.content.Intent
 import android.os.Bundle
@@ -33,10 +33,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.pvot.ghstmail.api.AliasInfo
-import com.pvot.ghstmail.api.GhstMailApi
-import com.pvot.ghstmail.auth.AuthManager
-import com.pvot.ghstmail.ui.theme.*
+import space.ghstmail.android.api.AliasInfo
+import space.ghstmail.android.api.GhstMailApi
+import space.ghstmail.android.auth.AuthManager
+import space.ghstmail.android.ui.theme.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
