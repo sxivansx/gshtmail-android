@@ -1,0 +1,20 @@
+GhstMail gives you email addresses to hand out instead of your real one. Mail sent to an alias is forwarded to your inbox. When an alias starts getting spam, pause it or burn it, and your real address was never exposed.
+
+What you can do in the app
+
+• Make an alias in one tap, or give it a label and an expiry (1 hour, 24 hours or 7 days).
+• Fill a fresh alias straight into an email field. Turn on GhstMail autofill and sign-up forms in other apps offer one. In Chrome, switch on "Autofill using another service" in Chrome's settings first.
+• Pause an alias to stop its mail, and resume it later.
+• Burn an alias for good when you are done with it.
+• Block or allow a whole sender domain. A rule applies to every alias you have.
+• See how many emails each alias received and how many were forwarded.
+• Search your aliases by address or label, and filter by active or paused.
+• Sign in with email and password, or with Google.
+
+Good to know
+
+• The app shows no ads and has no trackers.
+• Aliases created from the autofill suggestion are labelled with the app or website you made them for, so you can tell later who leaked your address.
+• You can ask for your account and everything in it to be deleted from the Account screen.
+
+GhstMail also works on the web at ghstmail.space.
