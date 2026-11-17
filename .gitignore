@@ -8,3 +8,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+.claude/
+
+# Lenia Sans is a paid font: keep the five lenia_sans_*.ttf files local
+app/src/main/res/font/*.ttf
