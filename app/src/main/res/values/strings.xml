@@ -1,4 +1,115 @@
 <resources>
     <string name="app_name">GhstMail</string>
     <string name="autofill_service_description">Generate disposable email aliases</string>
+
+    <string name="error_unreachable">Could not reach GhstMail. Check your connection and try again.</string>
+    <string name="error_session_expired">Your session has expired. Sign in again.</string>
+    <string name="error_generic">Something went wrong. Try again.</string>
+
+    <string name="login_title_sign_in">Welcome back</string>
+    <string name="login_title_register">Go invisible</string>
+    <string name="login_title_reset">Reset your password</string>
+    <string name="login_subtitle_reset">We will email you a link to choose a new one.</string>
+    <string name="login_title_reset_sent">Check your email</string>
+    <string name="login_subtitle_reset_sent">If there is a GhstMail account for %s, a link to reset its password is on its way. It works for one hour.</string>
+    <string name="login_reset_sent_hint">Nothing after a few minutes? Check your spam folder, or</string>
+    <string name="login_reset_sent_retry">try again</string>
+    <string name="login_google">Continue with Google</string>
+    <string name="login_google_note">We only receive your email address.</string>
+    <string name="login_google_cancelled">Google sign-in was cancelled.</string>
+    <string name="login_google_unavailable">Google sign-in is not available on this device.</string>
+    <string name="login_google_failed">Google sign-in did not finish. Try again.</string>
+    <string name="login_google_not_linked">An account with this email already exists. Sign in with your password, confirm your email from the link we sent, then try again.</string>
+    <string name="login_google_no_email">That account did not share an email address with us.</string>
+    <string name="login_google_refused">Could not sign you in with that account. Try again.</string>
+    <string name="login_or_email">or with email</string>
+    <string name="login_email_label">Email</string>
+    <string name="login_email_placeholder">you@example.com</string>
+    <string name="login_password_label">Password</string>
+    <string name="login_password_placeholder_sign_in">Enter your password</string>
+    <string name="login_password_placeholder_register">At least 8 characters</string>
+    <string name="login_show_password">Show password</string>
+    <string name="login_hide_password">Hide password</string>
+    <string name="login_action_sign_in">Sign in</string>
+    <string name="login_action_register">Create free account</string>
+    <string name="login_action_reset">Send reset link</string>
+    <string name="login_forgot">Forgot your password?</string>
+    <string name="login_switch_to_register_prompt">Don\'t have an account?</string>
+    <string name="login_switch_to_register_action">Create one</string>
+    <string name="login_switch_to_sign_in_prompt">Already have an account?</string>
+    <string name="login_switch_to_sign_in_action">Sign in</string>
+    <string name="login_remembered_prompt">Remembered it?</string>
+    <string name="login_error_required">Enter your email and password.</string>
+    <string name="login_error_email_required">Enter your email.</string>
+    <string name="login_error_password_short">Use at least 8 characters for your password.</string>
+
+    <string name="home_sign_out">Sign out</string>
+    <string name="home_sign_out_title">Sign out of GhstMail?</string>
+    <string name="home_sign_out_body">Autofill stops offering aliases until you sign in again. Your aliases keep forwarding.</string>
+    <string name="home_cancel">Cancel</string>
+    <string name="home_dismiss">Dismiss</string>
+
+    <string name="aliases_title">Aliases</string>
+    <string name="aliases_subtitle">Addresses you hand out instead of your real one.</string>
+    <string name="aliases_instant">Instant alias</string>
+    <string name="aliases_new">New alias</string>
+
+    <string name="overview_lead">Your aliases have forwarded</string>
+    <string name="overview_of_emails">of %d emails</string>
+    <string name="overview_aliases">Aliases</string>
+    <string name="overview_active">Active</string>
+    <string name="overview_paused">Paused</string>
+    <string name="overview_not_forwarded">Not forwarded</string>
+    <string name="overview_forwarding_to">Forwarding to</string>
+
+    <string name="autofill_off_title">Fill aliases from any email field</string>
+    <string name="autofill_off_body">Turn on GhstMail autofill and every email field offers a fresh alias.</string>
+    <string name="autofill_off_action">Turn on autofill</string>
+
+    <string name="aliases_search_placeholder">Search by address or label</string>
+    <string name="aliases_search_clear">Clear search</string>
+    <string name="aliases_filter_all">All</string>
+    <string name="aliases_filter_active">Active</string>
+    <string name="aliases_filter_paused">Paused</string>
+    <string name="aliases_matching">%1$d of %2$d</string>
+    <string name="aliases_no_match">No aliases match that search.</string>
+    <string name="aliases_empty_title">No aliases yet</string>
+    <string name="aliases_empty_body">Create one, use it on any website, and its mail forwards to your real inbox. Your real address stays hidden.</string>
+    <string name="aliases_empty_action">Create your first alias</string>
+    <string name="aliases_retry">Try again</string>
+
+    <string name="alias_no_label">No label</string>
+    <string name="alias_copy_label">Copy address</string>
+    <string name="alias_copied">Copied %s</string>
+    <string name="alias_created_copied">Created and copied</string>
+    <string name="alias_paused">Paused</string>
+    <string name="alias_state_active">Active</string>
+    <string name="alias_state_paused">Paused</string>
+    <string name="alias_forwarded">%1$d of %2$d forwarded</string>
+    <string name="alias_expired">Expired</string>
+    <string name="alias_expires_days">%1$dd %2$dh left</string>
+    <string name="alias_expires_hours">%1$dh %2$dm left</string>
+    <string name="alias_expires_minutes">%dm left</string>
+    <string name="alias_burn">Burn</string>
+    <string name="alias_burn_description">Burn %s</string>
+
+    <string name="burn_title">Burn this alias?</string>
+    <string name="burn_body">Mail sent to it will stop reaching you, and replies to its past mail stop working. This cannot be undone.</string>
+    <string name="burn_confirm">Burn it</string>
+
+    <string name="create_title">New alias</string>
+    <string name="create_label">Label (optional)</string>
+    <string name="create_label_placeholder">e.g. Netflix, Newsletter, Shopping</string>
+    <string name="create_expires">Expires</string>
+    <string name="create_expires_never">Never</string>
+    <string name="create_expires_1h">1 hour</string>
+    <string name="create_expires_24h">24 hours</string>
+    <string name="create_expires_7d">7 days</string>
+    <string name="create_action">Create alias</string>
+
+    <string name="autofill_suggestion_title">New GhstMail alias</string>
+    <string name="autofill_suggestion_subtitle">Fill a disposable email here</string>
+    <string name="autofill_creating">Creating alias…</string>
+    <string name="autofill_create_failed">GhstMail couldn\'t create an alias</string>
+    <string name="autofill_session_expired">Your GhstMail session has expired. Open the app and sign in again.</string>
 </resources>
