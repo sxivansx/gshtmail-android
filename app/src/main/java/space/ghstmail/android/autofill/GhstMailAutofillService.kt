@@ -41,34 +41,16 @@ class GhstMailAutofillService : AutofillService() {
             return
         }
 
-        val emailFields = mutableListOf<AutofillId>()
-        val allTextFields = mutableListOf<AutofillId>()
-        var isBrowser = false
-
+        // Only fields that say they take an email. Guessing from the app ("it looks like a
+        // browser") once put the suggestion on the Play Store's search box.
+        val fieldsToFill = mutableListOf<AutofillId>()
         for (i in 0 until structure.windowNodeCount) {
             val windowNode = structure.getWindowNodeAt(i)
-            val title = windowNode.title?.toString() ?: ""
-            Log.d(TAG, "Window: $title")
-
-            // Detect if this is a browser
-            val pkg = structure.activityComponent?.packageName?.lowercase() ?: ""
-            val browserKeywords = listOf(
-                "chrome", "firefox", "mozilla", "brave", "opera", "edge",
-                "samsung.android.app.sbrowser", "browser", "silk", "vivaldi", "kiwi"
-            )
-            if (browserKeywords.any { pkg.contains(it) || title.lowercase().contains(it) }) {
-                isBrowser = true
-            }
-
-            traverseNode(windowNode.rootViewNode, emailFields, allTextFields, depth = 0)
+            Log.d(TAG, "Window: ${windowNode.title}")
+            traverseNode(windowNode.rootViewNode, fieldsToFill, depth = 0)
         }
 
-        Log.d(TAG, "Found ${emailFields.size} email fields, ${allTextFields.size} text fields, isBrowser=$isBrowser")
-
-        // In browsers, fields often have no metadata — fall back to all text fields
-        val fieldsToFill = emailFields.ifEmpty {
-            if (isBrowser) allTextFields else emptyList()
-        }
+        Log.d(TAG, "Found ${fieldsToFill.size} email fields")
 
         if (fieldsToFill.isEmpty()) {
             callback.onSuccess(null)
@@ -126,7 +108,6 @@ class GhstMailAutofillService : AutofillService() {
     private fun traverseNode(
         node: AssistStructure.ViewNode,
         emailFields: MutableList<AutofillId>,
-        allTextFields: MutableList<AutofillId>,
         depth: Int
     ) {
         val indent = "  ".repeat(depth)
@@ -148,11 +129,6 @@ class GhstMailAutofillService : AutofillService() {
             )
         }
 
-        // Collect all fillable text fields (for browser fallback)
-        if (autofillType == android.view.View.AUTOFILL_TYPE_TEXT) {
-            node.autofillId?.let { allTextFields.add(it) }
-        }
-
         if (isEmailField(node)) {
             node.autofillId?.let {
                 Log.d(TAG, "${indent}>> EMAIL FIELD FOUND: id=$idEntry hint=$hint html=$htmlTag")
@@ -161,7 +137,7 @@ class GhstMailAutofillService : AutofillService() {
         }
 
         for (i in 0 until node.childCount) {
-            traverseNode(node.getChildAt(i), emailFields, allTextFields, depth + 1)
+            traverseNode(node.getChildAt(i), emailFields, depth + 1)
         }
     }
 
