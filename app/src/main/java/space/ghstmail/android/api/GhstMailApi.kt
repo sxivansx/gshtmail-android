@@ -86,6 +86,16 @@ data class AliasListResponse(
     val isPaged: Boolean get() = total != null && summary != null
 }
 
+/** A rule for one sender domain. It applies to every alias on the account. */
+@Serializable
+data class FilterRule(val id: String, val domain: String, val action: String = FilterAction.Block.wireValue)
+
+@Serializable
+data class FilterListResponse(val filters: List<FilterRule> = emptyList())
+
+@Serializable
+data class CreateFilterRequest(val domain: String, val action: String)
+
 @Serializable
 data class ErrorResponse(val error: String? = null, val message: String? = null)
 
@@ -93,6 +103,11 @@ enum class AliasStatus(val queryValue: String?) {
     All(null),
     Active("active"),
     Paused("paused")
+}
+
+enum class FilterAction(val wireValue: String) {
+    Block("block"),
+    Allow("allow")
 }
 
 sealed class ApiException(message: String) : IOException(message) {
@@ -262,6 +277,42 @@ object GhstMailApi {
     fun deleteAlias(token: String, id: String): Result<Unit> {
         val request = Request.Builder()
             .url("$BASE_URL/api/aliases/$id")
+            .header("Authorization", "Bearer $token")
+            .delete()
+            .build()
+
+        return execute(request) { }
+    }
+
+    fun getFilters(token: String): Result<FilterListResponse> {
+        val request = Request.Builder()
+            .url("$BASE_URL/api/filters")
+            .header("Authorization", "Bearer $token")
+            .get()
+            .build()
+
+        return execute(request) {
+            json.decodeFromString(FilterListResponse.serializer(), it)
+        }
+    }
+
+    fun createFilter(token: String, domain: String, action: FilterAction): Result<Unit> {
+        val body = json.encodeToString(
+            CreateFilterRequest.serializer(),
+            CreateFilterRequest(domain, action.wireValue)
+        )
+        val request = Request.Builder()
+            .url("$BASE_URL/api/filters")
+            .header("Authorization", "Bearer $token")
+            .post(body.toRequestBody(jsonMediaType))
+            .build()
+
+        return execute(request) { }
+    }
+
+    fun deleteFilter(token: String, id: String): Result<Unit> {
+        val request = Request.Builder()
+            .url("$BASE_URL/api/filters/$id")
             .header("Authorization", "Bearer $token")
             .delete()
             .build()
