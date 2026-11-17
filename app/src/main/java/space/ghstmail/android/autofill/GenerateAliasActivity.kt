@@ -9,7 +9,9 @@ import android.view.autofill.AutofillId
 import android.view.autofill.AutofillManager
 import android.view.autofill.AutofillValue
 import android.widget.RemoteViews
+import android.widget.Toast
 import space.ghstmail.android.R
+import space.ghstmail.android.api.ApiException
 import space.ghstmail.android.api.GhstMailApi
 import space.ghstmail.android.auth.AuthManager
 import kotlinx.coroutines.*
@@ -24,6 +26,7 @@ class GenerateAliasActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_generate_alias)
 
         val autofillIds = intent.getParcelableArrayExtra("autofill_ids")
             ?.filterIsInstance<AutofillId>()
@@ -55,7 +58,7 @@ class GenerateAliasActivity : Activity() {
                 Log.d(TAG, "Created alias: ${alias.address}")
 
                 val presentation = RemoteViews(packageName, R.layout.autofill_suggestion).apply {
-                    setTextViewText(R.id.autofill_title, "GhstMail")
+                    setTextViewText(R.id.autofill_title, getString(R.string.app_name))
                     setTextViewText(R.id.autofill_subtitle, alias.address)
                 }
 
@@ -75,6 +78,13 @@ class GenerateAliasActivity : Activity() {
                 finish()
             }.onFailure { error ->
                 Log.e(TAG, "Failed to create alias: ${error.message}")
+                val expired = error is ApiException.SessionExpired
+                if (expired) auth.logout()
+                Toast.makeText(
+                    applicationContext,
+                    if (expired) R.string.autofill_session_expired else R.string.autofill_create_failed,
+                    Toast.LENGTH_LONG
+                ).show()
                 setResult(RESULT_CANCELED)
                 finish()
             }

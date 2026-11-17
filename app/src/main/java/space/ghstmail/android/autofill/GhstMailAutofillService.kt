@@ -90,10 +90,7 @@ class GhstMailAutofillService : AutofillService() {
         )
 
         // Show a static presentation — tapping it triggers the PendingIntent
-        val presentation = RemoteViews(packageName, R.layout.autofill_suggestion).apply {
-            setTextViewText(R.id.autofill_title, "\uD83D\uDC7B Generate GhstMail Alias")
-            setTextViewText(R.id.autofill_subtitle, "Tap to create a disposable email")
-        }
+        val presentation = RemoteViews(packageName, R.layout.autofill_suggestion)
 
         try {
             val intentSender = pendingIntent.intentSender
