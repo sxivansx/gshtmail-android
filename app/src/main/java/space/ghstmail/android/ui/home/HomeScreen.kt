@@ -47,7 +47,6 @@ import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -117,6 +116,7 @@ import space.ghstmail.android.ui.components.GhostMark
 import space.ghstmail.android.ui.components.GhstButton
 import space.ghstmail.android.ui.components.GhstButtonStyle
 import space.ghstmail.android.ui.components.GhstCard
+import space.ghstmail.android.ui.components.GhstDialog
 import space.ghstmail.android.ui.components.GhstErrorBanner
 import space.ghstmail.android.ui.components.GhstSegmented
 import space.ghstmail.android.ui.components.GhstTextField
@@ -149,14 +149,14 @@ class HomeActions(
     val onDismissError: () -> Unit = {},
     val onEnableAutofill: () -> Unit = {},
     val onOpenFilters: () -> Unit = {},
-    val onSignOut: () -> Unit = {},
+    val onOpenAccount: () -> Unit = {},
 )
 
 @Composable
 fun HomeScreen(
-    onSignOut: () -> Unit,
     onSessionExpired: () -> Unit,
     onOpenFilters: () -> Unit,
+    onOpenAccount: () -> Unit,
     viewModel: HomeViewModel = viewModel(),
 ) {
     val context = LocalContext.current
@@ -200,7 +200,7 @@ fun HomeScreen(
         }
     }
 
-    val actions = remember(viewModel, animate, onOpenFilters) {
+    val actions = remember(viewModel, animate, onOpenFilters, onOpenAccount) {
         HomeActions(
             onGenerate = viewModel::generate,
             onCreate = viewModel::create,
@@ -219,10 +219,7 @@ fun HomeScreen(
             onDismissError = viewModel::dismissError,
             onEnableAutofill = { openAutofillSettings(context) },
             onOpenFilters = onOpenFilters,
-            onSignOut = {
-                viewModel.reset()
-                onSignOut()
-            },
+            onOpenAccount = onOpenAccount,
         )
     }
 
@@ -246,7 +243,6 @@ fun HomeContent(
     snackbarHostState: SnackbarHostState,
     actions: HomeActions,
 ) {
-    var confirmSignOut by remember { mutableStateOf(false) }
     var burnCandidate by remember { mutableStateOf<AliasInfo?>(null) }
     val now by produceState(System.currentTimeMillis()) {
         while (true) {
@@ -266,9 +262,9 @@ fun HomeContent(
                         color = GhstColors.TextMuted,
                     )
                 }
-                TextButton(onClick = { confirmSignOut = true }) {
+                TextButton(onClick = actions.onOpenAccount) {
                     Text(
-                        text = stringResource(R.string.home_sign_out),
+                        text = stringResource(R.string.account_title),
                         style = MaterialTheme.typography.bodyMedium,
                         color = GhstColors.TextMuted,
                     )
@@ -462,29 +458,6 @@ fun HomeContent(
             Spacer(Modifier.height(10.dp))
             Text(
                 text = stringResource(R.string.burn_body),
-                style = MaterialTheme.typography.bodyMedium,
-                color = GhstColors.TextMuted,
-            )
-        }
-    }
-
-    if (confirmSignOut) {
-        GhstDialog(
-            title = stringResource(R.string.home_sign_out_title),
-            onDismiss = { confirmSignOut = false },
-            confirm = {
-                GhstButton(
-                    text = stringResource(R.string.home_sign_out),
-                    onClick = {
-                        confirmSignOut = false
-                        actions.onSignOut()
-                    },
-                    compact = true,
-                )
-            },
-        ) {
-            Text(
-                text = stringResource(R.string.home_sign_out_body),
                 style = MaterialTheme.typography.bodyMedium,
                 color = GhstColors.TextMuted,
             )
@@ -1089,33 +1062,6 @@ private fun CreateAliasSheet(
 }
 
 /** A confirmation. Cancel comes first, so a reflex tap never destroys anything. */
-@Composable
-private fun GhstDialog(
-    title: String,
-    onDismiss: () -> Unit,
-    confirm: @Composable () -> Unit,
-    body: @Composable () -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(text = title, style = MaterialTheme.typography.headlineSmall) },
-        text = { Column { body() } },
-        confirmButton = confirm,
-        dismissButton = {
-            GhstButton(
-                text = stringResource(R.string.home_cancel),
-                onClick = onDismiss,
-                style = GhstButtonStyle.Secondary,
-                compact = true,
-            )
-        },
-        shape = RoundedCornerShape(20.dp),
-        containerColor = GhstColors.Card,
-        titleContentColor = GhstColors.Text,
-        textContentColor = GhstColors.TextMuted,
-    )
-}
-
 private fun isAutofillEnabled(context: Context): Boolean =
     context.getSystemService(AutofillManager::class.java)?.hasEnabledAutofillServices() == true
 

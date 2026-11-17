@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import space.ghstmail.android.auth.AuthManager
 import androidx.lifecycle.viewmodel.compose.viewModel
+import space.ghstmail.android.ui.account.AccountScreen
 import space.ghstmail.android.ui.filters.FiltersScreen
 import space.ghstmail.android.ui.home.HomeScreen
 import space.ghstmail.android.ui.home.HomeViewModel
@@ -38,7 +39,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private enum class Screen { Home, Filters }
+private enum class Screen { Home, Filters, Account }
 
 @Composable
 private fun GhstMailApp() {
@@ -64,15 +65,21 @@ private fun GhstMailApp() {
         screens.SaveableStateProvider(screen) {
             when (screen) {
                 Screen.Home -> HomeScreen(
-                    onSignOut = { signedOut(expired = false) },
                     onSessionExpired = { signedOut(expired = true) },
                     onOpenFilters = { screen = Screen.Filters },
+                    onOpenAccount = { screen = Screen.Account },
                     viewModel = home,
                 )
 
                 Screen.Filters -> FiltersScreen(
                     onBack = { screen = Screen.Home },
                     onSessionExpired = { signedOut(expired = true) },
+                )
+
+                Screen.Account -> AccountScreen(
+                    email = auth.email,
+                    onBack = { screen = Screen.Home },
+                    onSignOut = { signedOut(expired = false) },
                 )
             }
         }

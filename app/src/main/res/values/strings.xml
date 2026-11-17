@@ -109,6 +109,21 @@
 
     <string name="nav_back">Back</string>
 
+    <string name="account_title">Account</string>
+    <string name="account_signed_in">Signed in as</string>
+    <string name="account_email_unknown">Your GhstMail account</string>
+    <string name="account_forwarding_note">Mail sent to your aliases forwards to this address.</string>
+    <string name="account_privacy">Privacy policy</string>
+    <string name="account_terms">Terms</string>
+    <string name="account_delete_title">Delete account</string>
+    <string name="account_delete_body">This removes every alias and stops all forwarding, for good. To ask for it, email %1$s from %2$s. Everything is deleted within 7 days.</string>
+    <string name="account_delete_body_no_email">This removes every alias and stops all forwarding, for good. To ask for it, email %1$s from your account\'s address. Everything is deleted within 7 days.</string>
+    <string name="account_delete_action">Email support</string>
+    <string name="account_delete_mail_subject">Delete my GhstMail account</string>
+    <string name="account_delete_mail_body">Please delete my GhstMail account and everything in it.\n\nAccount email: %s</string>
+    <string name="account_delete_mail_body_no_email">Please delete my GhstMail account and everything in it.</string>
+    <string name="account_no_mail_app">No email app found. Write to %s.</string>
+
     <string name="filters_title">Filters</string>
     <string name="filters_subtitle">Block or allow mail from a whole domain. A rule applies to every alias you have.</string>
     <string name="filters_domain_label">Domain</string>

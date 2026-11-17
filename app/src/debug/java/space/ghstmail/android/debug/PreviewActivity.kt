@@ -18,6 +18,8 @@ import space.ghstmail.android.api.AliasInfo
 import space.ghstmail.android.api.AliasStatus
 import space.ghstmail.android.api.ApiException
 import space.ghstmail.android.api.FilterRule
+import space.ghstmail.android.ui.account.AccountActions
+import space.ghstmail.android.ui.account.AccountContent
 import space.ghstmail.android.ui.filters.FiltersActions
 import space.ghstmail.android.ui.filters.FiltersContent
 import space.ghstmail.android.ui.filters.FiltersUiState
@@ -36,7 +38,7 @@ import java.time.Instant
 /**
  * Debug-only: the home screen on sample data, no account and no network.
  * adb shell am start -n space.ghstmail.android/.debug.PreviewActivity --es state list
- * States: list (default), empty, loading, error, create (sheet open), filters, filters-empty.
+ * States: list (default), empty, loading, error, create (sheet open), filters, filters-empty, account.
  */
 class PreviewActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,6 +51,14 @@ class PreviewActivity : ComponentActivity() {
         val animate = Settings.Global.getFloat(
             contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f
         ) != 0f
+        if (name == "account") {
+            setContent {
+                GhstMailTheme {
+                    AccountContent(email = "you@example.com", actions = AccountActions(onBack = { finish() }))
+                }
+            }
+            return
+        }
         if (name.startsWith("filters")) {
             setContent { GhstMailTheme { FiltersPreview(empty = name == "filters-empty") } }
             return
@@ -112,7 +122,7 @@ class PreviewActivity : ComponentActivity() {
                         onDismissError = { state = state.copy(error = null) },
                         onRetry = { show(sampleAliases(), HomeUiState(loading = false, forwardsTo = "you@example.com")) },
                         onEnableAutofill = { autofill = true },
-                        onSignOut = { finish() },
+                        onOpenAccount = { finish() },
                     ),
                 )
             }

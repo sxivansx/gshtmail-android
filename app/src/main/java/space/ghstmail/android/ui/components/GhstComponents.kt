@@ -33,6 +33,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -350,6 +351,34 @@ fun GhstTextField(
             ),
         )
     }
+}
+
+/** A question with Cancel on the left and the answer on the right. */
+@Composable
+fun GhstDialog(
+    title: String,
+    onDismiss: () -> Unit,
+    confirm: @Composable () -> Unit,
+    body: @Composable () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = title, style = MaterialTheme.typography.headlineSmall) },
+        text = { Column { body() } },
+        confirmButton = confirm,
+        dismissButton = {
+            GhstButton(
+                text = stringResource(R.string.home_cancel),
+                onClick = onDismiss,
+                style = GhstButtonStyle.Secondary,
+                compact = true,
+            )
+        },
+        shape = RoundedCornerShape(20.dp),
+        containerColor = GhstColors.Card,
+        titleContentColor = GhstColors.Text,
+        textContentColor = GhstColors.TextMuted,
+    )
 }
 
 @Composable
