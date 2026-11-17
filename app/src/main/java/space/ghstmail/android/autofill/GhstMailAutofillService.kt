@@ -3,6 +3,7 @@ package space.ghstmail.android.autofill
 import android.app.PendingIntent
 import android.app.assist.AssistStructure
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.CancellationSignal
 import android.service.autofill.*
 import android.text.InputType
@@ -77,9 +78,10 @@ class GhstMailAutofillService : AutofillService() {
         // Create an intent to launch the alias generation activity
         val generateIntent = Intent(applicationContext, GenerateAliasActivity::class.java).apply {
             putExtra("autofill_ids", fieldsToFill.toTypedArray())
-            // Extract a label from the window title
-            val title = structure.getWindowNodeAt(0).title?.toString() ?: ""
-            putExtra("app_label", extractLabel(title))
+            val packageName = structure.activityComponent?.packageName.orEmpty()
+            val label = aliasLabel(webDomainIn(structure), appName(packageName), packageName)
+            Log.d(TAG, "Alias label: $label")
+            putExtra("app_label", label)
         }
 
         val pendingIntent = PendingIntent.getActivity(
@@ -240,15 +242,29 @@ class GhstMailAutofillService : AutofillService() {
         return false
     }
 
-    private fun extractLabel(windowTitle: String): String {
-        if (windowTitle.isBlank()) return ""
-        // Chrome titles are like "Sign Up - Netflix"
-        val parts = windowTitle.split(" - ", " | ", " — ")
-        val last = parts.lastOrNull()?.trim() ?: return windowTitle.take(20)
-        // Strip "Google Chrome" etc
-        if (last.lowercase().contains("chrome") || last.lowercase().contains("browser")) {
-            return parts.firstOrNull()?.trim()?.take(20) ?: ""
+    /** The site a browser or web view is showing, when it says. */
+    private fun webDomainIn(structure: AssistStructure): String? {
+        for (i in 0 until structure.windowNodeCount) {
+            webDomainIn(structure.getWindowNodeAt(i).rootViewNode)?.let { return it }
         }
-        return last.take(20)
+        return null
+    }
+
+    private fun webDomainIn(node: AssistStructure.ViewNode): String? {
+        node.webDomain?.takeIf { it.isNotBlank() }?.let { return it }
+        for (i in 0 until node.childCount) {
+            webDomainIn(node.getChildAt(i))?.let { return it }
+        }
+        return null
+    }
+
+    /** Null when the system keeps the app hidden from us, which it may on Android 11 and later. */
+    private fun appName(packageName: String): String? {
+        if (packageName.isEmpty()) return null
+        return try {
+            packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, 0)).toString()
+        } catch (_: PackageManager.NameNotFoundException) {
+            null
+        }
     }
 }
