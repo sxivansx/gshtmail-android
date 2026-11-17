@@ -12,3 +12,8 @@ local.properties
 
 # Lenia Sans is a paid font: keep the five lenia_sans_*.ttf files local
 app/src/main/res/font/*.ttf
+
+# Signing: the upload key and its passwords never go in the repo
+keystore.properties
+*.jks
+*.keystore
