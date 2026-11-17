@@ -23,7 +23,8 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.GhstMail">
+            android:theme="@style/Theme.GhstMail"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -33,7 +34,7 @@
         <activity
             android:name=".autofill.GenerateAliasActivity"
             android:exported="false"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:theme="@style/Theme.GhstMail.Overlay"
             android:taskAffinity=""
             android:excludeFromRecents="true" />
 
