@@ -2,25 +2,18 @@ package space.ghstmail.android.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import space.ghstmail.android.R
 
-val LeniaSans = FontFamily(
-    Font(R.font.lenia_sans_regular, FontWeight.Normal),
-    Font(R.font.lenia_sans_medium, FontWeight.Medium),
-    Font(R.font.lenia_sans_semibold, FontWeight.SemiBold),
-    Font(R.font.lenia_sans_bold, FontWeight.Bold),
-    Font(R.font.lenia_sans_extrabold, FontWeight.ExtraBold),
-)
+// The system's own typeface. The only custom lettering is the wordmark, which is a drawable.
+private val TextFamily: FontFamily = FontFamily.Default
 
 val MonoFamily: FontFamily = FontFamily.Monospace
 
 private fun display(size: Int, lineHeight: Int, weight: FontWeight = FontWeight.Bold) = TextStyle(
-    fontFamily = LeniaSans,
+    fontFamily = TextFamily,
     fontWeight = weight,
     fontSize = size.sp,
     lineHeight = lineHeight.sp,
@@ -28,7 +21,7 @@ private fun display(size: Int, lineHeight: Int, weight: FontWeight = FontWeight.
 )
 
 private fun body(size: Int, lineHeight: Int, weight: FontWeight = FontWeight.Normal) = TextStyle(
-    fontFamily = LeniaSans,
+    fontFamily = TextFamily,
     fontWeight = weight,
     fontSize = size.sp,
     lineHeight = lineHeight.sp,

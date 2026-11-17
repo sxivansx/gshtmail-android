@@ -89,10 +89,10 @@ fun GhstTopBar(modifier: Modifier = Modifier, actions: @Composable RowScope.() -
         ) {
             GhostMark()
             Spacer(Modifier.width(10.dp))
-            Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.titleLarge,
-                color = GhstColors.Text,
+            Icon(
+                painter = painterResource(R.drawable.ic_wordmark),
+                contentDescription = stringResource(R.string.app_name),
+                tint = GhstColors.Text,
             )
             Spacer(Modifier.weight(1f))
             actions()
