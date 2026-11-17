@@ -148,6 +148,7 @@ class HomeActions(
     val onRetry: () -> Unit = {},
     val onDismissError: () -> Unit = {},
     val onEnableAutofill: () -> Unit = {},
+    val onOpenFilters: () -> Unit = {},
     val onSignOut: () -> Unit = {},
 )
 
@@ -155,6 +156,7 @@ class HomeActions(
 fun HomeScreen(
     onSignOut: () -> Unit,
     onSessionExpired: () -> Unit,
+    onOpenFilters: () -> Unit,
     viewModel: HomeViewModel = viewModel(),
 ) {
     val context = LocalContext.current
@@ -198,7 +200,7 @@ fun HomeScreen(
         }
     }
 
-    val actions = remember(viewModel, animate) {
+    val actions = remember(viewModel, animate, onOpenFilters) {
         HomeActions(
             onGenerate = viewModel::generate,
             onCreate = viewModel::create,
@@ -216,6 +218,7 @@ fun HomeScreen(
             onRetry = viewModel::retry,
             onDismissError = viewModel::dismissError,
             onEnableAutofill = { openAutofillSettings(context) },
+            onOpenFilters = onOpenFilters,
             onSignOut = {
                 viewModel.reset()
                 onSignOut()
@@ -256,6 +259,13 @@ fun HomeContent(
     Scaffold(
         topBar = {
             GhstTopBar {
+                TextButton(onClick = actions.onOpenFilters) {
+                    Text(
+                        text = stringResource(R.string.filters_title),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = GhstColors.TextMuted,
+                    )
+                }
                 TextButton(onClick = { confirmSignOut = true }) {
                     Text(
                         text = stringResource(R.string.home_sign_out),

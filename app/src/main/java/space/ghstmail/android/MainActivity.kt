@@ -11,11 +11,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import space.ghstmail.android.auth.AuthManager
+import androidx.lifecycle.viewmodel.compose.viewModel
+import space.ghstmail.android.ui.filters.FiltersScreen
 import space.ghstmail.android.ui.home.HomeScreen
+import space.ghstmail.android.ui.home.HomeViewModel
 import space.ghstmail.android.ui.login.LoginScreen
 import space.ghstmail.android.ui.theme.GhstMailTheme
 
@@ -34,6 +38,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+private enum class Screen { Home, Filters }
+
 @Composable
 private fun GhstMailApp() {
     val context = LocalContext.current
@@ -41,19 +47,35 @@ private fun GhstMailApp() {
     var isLoggedIn by remember { mutableStateOf(auth.isLoggedIn) }
     // Set when the server stopped taking the token, so the sign-in screen can say why.
     var sessionExpired by rememberSaveable { mutableStateOf(false) }
+    var screen by rememberSaveable { mutableStateOf(Screen.Home) }
+    // Keeps the alias list where it was scrolled to while another screen is open.
+    val screens = rememberSaveableStateHolder()
+    val home: HomeViewModel = viewModel()
+
+    fun signedOut(expired: Boolean) {
+        home.reset()
+        auth.logout()
+        sessionExpired = expired
+        screen = Screen.Home
+        isLoggedIn = false
+    }
 
     if (isLoggedIn) {
-        HomeScreen(
-            onSignOut = {
-                auth.logout()
-                isLoggedIn = false
-            },
-            onSessionExpired = {
-                auth.logout()
-                sessionExpired = true
-                isLoggedIn = false
-            },
-        )
+        screens.SaveableStateProvider(screen) {
+            when (screen) {
+                Screen.Home -> HomeScreen(
+                    onSignOut = { signedOut(expired = false) },
+                    onSessionExpired = { signedOut(expired = true) },
+                    onOpenFilters = { screen = Screen.Filters },
+                    viewModel = home,
+                )
+
+                Screen.Filters -> FiltersScreen(
+                    onBack = { screen = Screen.Home },
+                    onSessionExpired = { signedOut(expired = true) },
+                )
+            }
+        }
     } else {
         LoginScreen(
             auth = auth,
